@@ -5,7 +5,7 @@ const userRouter = require("./src/api/routes/user");
 const eventRouter = require("./src/api/routes/event");
 const attenderRouter = require("./src/api/routes/attender");
 const cloudinary = require("cloudinary").v2;
-
+const cors = require("cors");
 const app = express();
 
 cloudinary.config({
@@ -15,6 +15,8 @@ cloudinary.config({
 });
 
 connectDB();
+
+app.use(cors());
 
 app.use(express.json());
 
