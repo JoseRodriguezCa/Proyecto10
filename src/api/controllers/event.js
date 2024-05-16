@@ -39,8 +39,8 @@ const getEventById = async (req, res, next) => {
 
 const getEventByName = async (req, res, next) => {
   try {
-    const { tittle } = req.params;
-    const event = await Event.find({ tittle })
+    const { title } = req.params;
+    const event = await Event.find({ title })
       .populate({
         path: "attender",
         select: "name email",
