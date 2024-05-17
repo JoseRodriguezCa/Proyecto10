@@ -6,9 +6,9 @@ const eventSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     location: { type: String, required: true },
     description: { type: String, required: true },
-    poster: { type: String, required: false },
+    poster: { type: String, required: true },
     attender: [{ type: mongoose.Types.ObjectId,  required:false, ref:"attenders" }],
-    user: { type:mongoose.Types.ObjectId, required:false, ref:"users" }
+    user: { type:mongoose.Types.ObjectId, required:true, ref:"users" }
   },
   {
     timestamps: true,
