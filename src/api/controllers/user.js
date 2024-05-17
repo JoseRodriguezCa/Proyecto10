@@ -40,6 +40,18 @@ const getUserByName = async (req, res, next) => {
 const register = async (req, res, next) => {
   try {
     if (req.body.rol !== "admin") {
+      const { username, email } = req.body;
+      const existingUser = await User.findOne({
+        $or: [{ username }, { email }],
+      });
+
+      if (existingUser) {
+        return res
+          .status(400)
+          .json({
+            message: "El nombre de usuario o correo electrónico ya está en uso",
+          });
+      }
       const newUser = new User(req.body);
       if (req.file) {
         newUser.profileimg = req.file.path;
@@ -58,6 +70,12 @@ const register = async (req, res, next) => {
 const PutUser = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { username, email } = req.body;
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+
+    if (existingUser) {
+      return res.status(400).json({ message: "El nombre de usuario o correo electrónico ya está en uso" });
+    }
     const user = await User.findById(id);
     if (req.user._id.toString() === id || req.user.rol === "admin") {
       if (req.body.rol && req.user.rol !== "admin") {

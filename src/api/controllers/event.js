@@ -63,6 +63,11 @@ const getEventByName = async (req, res, next) => {
 const postEvent = async (req, res, next) => {
   try {
     const { id } = req.user;
+    const { title } = req.body;
+    const oldEvent = await Event.findOne({ title });
+    if (oldEvent) {
+      return res.status(400).json({ message: "Ya existe un evento con este nombre" });
+    }
     const newEvent = new Event(req.body);
     if(req.file) {
       newEvent.poster = req.file.path;
@@ -72,6 +77,7 @@ const postEvent = async (req, res, next) => {
     return res.status(201).json(event);
   } catch (error) {
     console.log(error);
+    console.log(error);
     return res.status(400).json("error en post");
   }
 };
@@ -79,6 +85,10 @@ const postEvent = async (req, res, next) => {
 const putEvent = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const oldEventByTitle = await Event.findOne({ title });
+    if (oldEventByTitle) {
+      return res.status(400).json({ message: "Ya existe un evento con este nombre" });
+    }
     const oldEvent = await Event.findById(id);
     const newEvent = new Event(req.body);
     if (
