@@ -41,19 +41,19 @@ const register = async (req, res, next) => {
   try {
     if (req.body.rol !== "admin") {
       const { username, email } = req.body;
-      const existingUser = await User.findOne({
-        $or: [{ username }, { email }],
-      });
+      // const existingUser = await User.findOne({
+      //   $or: [{ username }, { email }],
+      // });
 
-      console.log("Datos recibidos:", { username, email });
+      // console.log("Datos recibidos:", { username, email });
 
-      if (existingUser) {
-        return res
-          .status(400)
-          .json({
-            message: "El nombre de usuario o correo electrónico ya está en uso",
-          });
-      }
+      // if (existingUser) {
+      //   return res
+      //     .status(400)
+      //     .json({
+      //       message: "El nombre de usuario o correo electrónico ya está en uso",
+      //     });
+      // }
       const newUser = new User(req.body);
       if (req.file) {
         newUser.profileimg = req.file.path;
