@@ -45,6 +45,8 @@ const register = async (req, res, next) => {
         $or: [{ username }, { email }],
       });
 
+      console.log("Datos recibidos:", { username, email });
+
       if (existingUser) {
         return res
           .status(400)
