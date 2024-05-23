@@ -73,45 +73,56 @@ const register = async (req, res, next) => {
 const PutUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userName, email } = req.body;
-    const existingUser = await User.findOne({       $or: [
-      { userName },
-      { email }
-    ],
-    _id: { $ne: id }
-  });
+    const { userName, email, password, profileimg } = req.body;
 
-    if (existingUser) {
-      return res.status(400).json({ message: "El nombre de usuario o correo electrónico ya está en uso" });
-    }
+    // Encontrar el usuario actual
     const user = await User.findById(id);
-
-    if (req.user._id.toString() === id || req.user.rol === "admin") {
-      if (req.body.rol && req.user.rol !== "admin") {
-        return res.status(400).json("no tienes permiso para cambiar el rol");
-      }
-      const newUser = new User(req.body);
-      newUser._id = id;
-
-      if (req.file) {
-        if (user.profileimg) {
-          deleteFile(user.profileimg);
-        }
-        newUser.profileimg = req.file.path;
-      }
-
-      const userUpdated = await User.findByIdAndUpdate(id, newUser, {
-        new: true,
-      });
-      return res.status(200).json(userUpdated);
-    } else {
-      return res.status(400).json("No puedes modificar a otro usuario");
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
+
+    // Verificar permisos: el propio usuario o un administrador
+    if (req.user._id.toString() !== id && req.user.rol !== "admin") {
+      return res.status(403).json({ message: "No tienes permiso para modificar este usuario" });
+    }
+
+    // Verificar si el nuevo nombre de usuario o correo electrónico ya están en uso
+    if (userName !== user.userName || email !== user.email) {
+      const existingUser = await User.findOne({
+        $or: [
+          { userName },
+          { email }
+        ],
+        _id: { $ne: id } // Excluir al usuario actual
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ message: "El nombre de usuario o correo electrónico ya está en uso" });
+      }
+    }
+
+    // Preparar los datos de actualización
+    const updates = {};
+    if (userName) updates.userName = userName;
+    if (email) updates.email = email;
+    if (password) updates.password = bcrypt.hashSync(password, 10); // Asegurarse de encriptar la nueva contraseña
+    if (req.file) {
+      if (user.profileimg) {
+        deleteFile(user.profileimg); // Eliminar la imagen antigua
+      }
+      updates.profileimg = req.file.path; // Actualizar con la nueva imagen
+    }
+
+    // Actualizar el usuario
+    const userUpdated = await User.findByIdAndUpdate(id, updates, { new: true });
+    return res.status(200).json(userUpdated);
+
   } catch (error) {
-    console.log(error);
-    return res.status(400).json("error en put");
+    console.error(error);
+    return res.status(500).json({ message: "Error en la actualización del usuario" });
   }
 };
+
 
 const DeleteUser = async (req, res, next) => {
   try {
