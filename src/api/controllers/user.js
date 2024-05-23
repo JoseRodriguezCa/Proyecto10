@@ -74,12 +74,18 @@ const PutUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { userName, email } = req.body;
-    const existingUser = await User.findOne({ $or: [{ userName }, { email }] });
+    const existingUser = await User.findOne({       $or: [
+      { userName },
+      { email }
+    ],
+    _id: { $ne: id }
+  });
 
     if (existingUser) {
       return res.status(400).json({ message: "El nombre de usuario o correo electrónico ya está en uso" });
     }
     const user = await User.findById(id);
+
     if (req.user._id.toString() === id || req.user.rol === "admin") {
       if (req.body.rol && req.user.rol !== "admin") {
         return res.status(400).json("no tienes permiso para cambiar el rol");
