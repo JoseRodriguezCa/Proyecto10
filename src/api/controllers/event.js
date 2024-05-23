@@ -27,8 +27,8 @@ const getEventById = async (req, res, next) => {
         path: "attender",
         select: "name email user",
         populate: {
-          path: "user", // Indica que quieres poblar el campo 'user'
-          select: "userName profileimg", // Aquí especifica los campos que deseas poblar del modelo de usuario
+          path: "user",
+          select: "userName profileimg",
         },
       })
       .populate({
@@ -48,6 +48,10 @@ const getEventByName = async (req, res, next) => {
       .populate({
         path: "attender",
         select: "name email user",
+        populate: {
+          path: "user",
+          select: "userName profileimg",
+        },
       })
       .populate({
         path: "user",
@@ -70,10 +74,12 @@ const postEvent = async (req, res, next) => {
     const { title } = req.body;
     const oldEvent = await Event.findOne({ title });
     if (oldEvent) {
-      return res.status(400).json({ message: "Ya existe un evento con este nombre" });
+      return res
+        .status(400)
+        .json({ message: "Ya existe un evento con este nombre" });
     }
     const newEvent = new Event(req.body);
-    if(req.file) {
+    if (req.file) {
       newEvent.poster = req.file.path;
     }
     newEvent.user = id;
@@ -91,7 +97,9 @@ const putEvent = async (req, res, next) => {
     const { id } = req.params;
     const oldEventByTitle = await Event.findOne({ title });
     if (oldEventByTitle) {
-      return res.status(400).json({ message: "Ya existe un evento con este nombre" });
+      return res
+        .status(400)
+        .json({ message: "Ya existe un evento con este nombre" });
     }
     const oldEvent = await Event.findById(id);
     const newEvent = new Event(req.body);
@@ -106,7 +114,7 @@ const putEvent = async (req, res, next) => {
       }
       newEvent._id = id;
 
-      if(req.file) {
+      if (req.file) {
         newEvent.poster = req.file.path;
         deleteFile(oldEvent.poster);
       }
@@ -171,8 +179,10 @@ const deleteAttenderFromEvent = async (req, res, next) => {
     if (
       event.user._id.toString() === req.user._id.toString() ||
       req.user.rol === "admin"
-    ) { 
-      await Attender.findByIdAndUpdate(attenderId, { $pull: { event: eventId } });
+    ) {
+      await Attender.findByIdAndUpdate(attenderId, {
+        $pull: { event: eventId },
+      });
       const updatedEvent = await Event.findByIdAndUpdate(
         eventId,
         { $pull: { attender: attenderId } },
@@ -182,12 +192,13 @@ const deleteAttenderFromEvent = async (req, res, next) => {
         message: "asistente eliminado del evento.",
         attender: updatedEvent,
       });
-    }else {
+    } else {
       return res
-      .status(400)
-      .json({ error: "No estas autorizado para eliminar al asistente del evento." });
+        .status(400)
+        .json({
+          error: "No estas autorizado para eliminar al asistente del evento.",
+        });
     }
-
   } catch (error) {
     console.error(error);
     return res
