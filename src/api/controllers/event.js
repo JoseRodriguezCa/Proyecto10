@@ -26,6 +26,10 @@ const getEventById = async (req, res, next) => {
       .populate({
         path: "attender",
         select: "name email user",
+        populate: {
+          path: "user", // Indica que quieres poblar el campo 'user'
+          select: "userName profileimg", // Aquí especifica los campos que deseas poblar del modelo de usuario
+        },
       })
       .populate({
         path: "user",
