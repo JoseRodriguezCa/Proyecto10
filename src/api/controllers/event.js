@@ -7,7 +7,7 @@ const getAllEvents = async (req, res, next) => {
     const events = await Event.find()
       .populate({
         path: "attender",
-        select: "name email",
+        select: "name email user",
       })
       .populate({
         path: "user",
@@ -25,7 +25,7 @@ const getEventById = async (req, res, next) => {
     const event = await Event.findById(id)
       .populate({
         path: "attender",
-        select: "name email",
+        select: "name email user",
       })
       .populate({
         path: "user",
@@ -43,7 +43,7 @@ const getEventByName = async (req, res, next) => {
     const event = await Event.find({ title })
       .populate({
         path: "attender",
-        select: "name email",
+        select: "name email user",
       })
       .populate({
         path: "user",
