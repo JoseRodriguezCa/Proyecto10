@@ -73,8 +73,8 @@ const register = async (req, res, next) => {
 const PutUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { username, email } = req.body;
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    const { userName, email } = req.body;
+    const existingUser = await User.findOne({ $or: [{ userName }, { email }] });
 
     if (existingUser) {
       return res.status(400).json({ message: "El nombre de usuario o correo electrónico ya está en uso" });
