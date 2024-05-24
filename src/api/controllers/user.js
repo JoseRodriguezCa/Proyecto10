@@ -75,25 +75,25 @@ const PutUser = async (req, res, next) => {
     const { id } = req.params;
     const { userName, email, password, profileimg } = req.body;
 
-    // Encontrar el usuario actual
+    
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // Verificar permisos: el propio usuario o un administrador
+    
     if (req.user._id.toString() !== id && req.user.rol !== "admin") {
       return res.status(403).json({ message: "No tienes permiso para modificar este usuario" });
     }
 
-    // Verificar si el nuevo nombre de usuario o correo electrónico ya están en uso
+    
     if (userName !== user.userName || email !== user.email) {
       const existingUser = await User.findOne({
         $or: [
           { userName },
           { email }
         ],
-        _id: { $ne: id } // Excluir al usuario actual
+        _id: { $ne: id }
       });
 
       if (existingUser) {
@@ -101,19 +101,19 @@ const PutUser = async (req, res, next) => {
       }
     }
 
-    // Preparar los datos de actualización
+   
     const updates = {};
     if (userName) updates.userName = userName;
     if (email) updates.email = email;
-    if (password) updates.password = bcrypt.hashSync(password, 10); // Asegurarse de encriptar la nueva contraseña
+    if (password) updates.password = bcrypt.hashSync(password, 10); 
     if (req.file) {
       if (user.profileimg) {
-        deleteFile(user.profileimg); // Eliminar la imagen antigua
+        deleteFile(user.profileimg); 
       }
-      updates.profileimg = req.file.path; // Actualizar con la nueva imagen
+      updates.profileimg = req.file.path; 
     }
 
-    // Actualizar el usuario
+    
     const userUpdated = await User.findByIdAndUpdate(id, updates, { new: true });
     return res.status(200).json(userUpdated);
 
