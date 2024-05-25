@@ -95,7 +95,7 @@ const postEvent = async (req, res, next) => {
 const putEvent = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title } = req.body
+    const { title,date,location,description,poster } = req.body;
     const oldEventByTitle = await Event.findOne({ title });
     if (oldEventByTitle) {
       return res
@@ -115,12 +115,19 @@ const putEvent = async (req, res, next) => {
       }
       newEvent._id = id;
 
-      if (req.file) {
-        newEvent.poster = req.file.path;
-        deleteFile(oldEvent.poster);
+      const updates = {};
+    if (title) updates.title = title;
+    if (date) updates.date = date;
+    if (location) updates.location = location;
+    if (description) updates.description = description;
+    if (req.file) {
+      if (newEvent.poster) {
+        deleteFile(oldEvent.poster); 
       }
+      updates.poster = req.file.path; 
+    }
 
-      const EventUpdated = await Event.findByIdAndUpdate(id, newEvent, {
+      const EventUpdated = await Event.findByIdAndUpdate(id, updates, {
         new: true,
       });
 
@@ -130,6 +137,7 @@ const putEvent = async (req, res, next) => {
         await findAttender.save();
       }
       return res.status(200).json(EventUpdated);
+      
     } else {
       return res
         .status(400)
