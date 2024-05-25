@@ -95,12 +95,12 @@ const postEvent = async (req, res, next) => {
 const putEvent = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const oldEventByTitle = await Event.findOne({ title });
-    if (oldEventByTitle) {
-      return res
-        .status(400)
-        .json({ message: "Ya existe un evento con este nombre" });
-    }
+    // const oldEventByTitle = await Event.findOne({ title });
+    // if (oldEventByTitle) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Ya existe un evento con este nombre" });
+    // }
     const oldEvent = await Event.findById(id);
     const newEvent = new Event(req.body);
     if (

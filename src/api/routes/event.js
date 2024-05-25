@@ -13,7 +13,7 @@ const {
 const eventRouter = require("express").Router();
 
 eventRouter.get("/:id", getEventById);
-eventRouter.get("/tittle/:tittle", getEventByName);
+eventRouter.get("/title/:title", getEventByName);
 eventRouter.get("/", getAllEvents);
 eventRouter.post("/",[isAuth],uploadPosterImage.single("poster"), postEvent);
 eventRouter.put("/:id",[isAuth],uploadPosterImage.single("poster"), putEvent);
