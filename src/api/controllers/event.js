@@ -44,7 +44,7 @@ const getEventById = async (req, res, next) => {
 const getEventByName = async (req, res, next) => {
   try {
     const { title } = req.params;
-    const event = await Event.find({ title })
+    const event = await Event.find({ title: { $regex: title, $options: "i" } })
       .populate({
         path: "attender",
         select: "name email user",
@@ -95,7 +95,7 @@ const postEvent = async (req, res, next) => {
 const putEvent = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title,date,location,description,poster } = req.body;
+    const { title, date, location, description, poster } = req.body;
     const oldEventByTitle = await Event.findOne({ title });
     if (oldEventByTitle) {
       return res
@@ -116,16 +116,16 @@ const putEvent = async (req, res, next) => {
       newEvent._id = id;
 
       const updates = {};
-    if (title) updates.title = title;
-    if (date) updates.date = date;
-    if (location) updates.location = location;
-    if (description) updates.description = description;
-    if (req.file) {
-      if (newEvent.poster) {
-        deleteFile(oldEvent.poster); 
+      if (title) updates.title = title;
+      if (date) updates.date = date;
+      if (location) updates.location = location;
+      if (description) updates.description = description;
+      if (req.file) {
+        if (newEvent.poster) {
+          deleteFile(oldEvent.poster);
+        }
+        updates.poster = req.file.path;
       }
-      updates.poster = req.file.path; 
-    }
 
       const EventUpdated = await Event.findByIdAndUpdate(id, updates, {
         new: true,
@@ -137,7 +137,6 @@ const putEvent = async (req, res, next) => {
         await findAttender.save();
       }
       return res.status(200).json(EventUpdated);
-      
     } else {
       return res
         .status(400)
@@ -202,11 +201,9 @@ const deleteAttenderFromEvent = async (req, res, next) => {
         attender: updatedEvent,
       });
     } else {
-      return res
-        .status(400)
-        .json({
-          error: "No estas autorizado para eliminar al asistente del evento.",
-        });
+      return res.status(400).json({
+        error: "No estas autorizado para eliminar al asistente del evento.",
+      });
     }
   } catch (error) {
     console.error(error);
