@@ -3,7 +3,13 @@ const Attender = require("../models/attender");
 const Event = require("../models/event");
 
 const getAllEvents = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
   try {
+    const totalCount = await Event.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
     const events = await Event.find()
       .populate({
         path: "attender",
@@ -12,12 +18,16 @@ const getAllEvents = async (req, res, next) => {
       .populate({
         path: "user",
         select: "userName profileimg",
-      });
-    return res.status(200).json(events);
+      })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return res.status(200).json({ events, totalPages, currentPage: page });
   } catch (error) {
-    return res.status(400).json("error en getAll");
+    return res.status(400).json("Error en getAll");
   }
 };
+
 
 const getEventById = async (req, res, next) => {
   try {
