@@ -150,7 +150,7 @@ const login = async (req, res, next) => {
       return res.status(400).json("Usuario o Contraseña incorrectos");
     }
     if (bcrypt.compareSync(password, user.password)) {
-      const token = generateSign(user._id);
+      const token = generateSign(user._id,user.rol);
       return res.status(200).json({ token, user });
     }
     return res.status(400).json("Usuario o Contraseña incorrectos");
