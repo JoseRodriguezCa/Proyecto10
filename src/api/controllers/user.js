@@ -79,7 +79,9 @@ const register = async (req, res, next) => {
 const PutUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userName, email, password, profileimg } = req.body;
+    const { userName, email, password, rol, profileimg } = req.body;
+
+    console.log("Rol recibido:", rol);
 
     const user = await User.findById(id);
     if (!user) {
@@ -88,7 +90,7 @@ const PutUser = async (req, res, next) => {
 
     if (req.user._id.toString() !== id && req.user.rol !== "admin") {
       return res
-        .status(403)
+        .status(400)
         .json({ message: "No tienes permiso para modificar este usuario" });
     }
 
@@ -111,6 +113,7 @@ const PutUser = async (req, res, next) => {
     if (userName) updates.userName = userName;
     if (email) updates.email = email;
     if (password) updates.password = bcrypt.hashSync(password, 10);
+    if (rol) updates.rol = rol;
     if (req.file) {
       if (user.profileimg) {
         deleteFile(user.profileimg);
@@ -125,10 +128,11 @@ const PutUser = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res
-      .status(500)
+      .status(400)
       .json({ message: "Error en la actualización del usuario" });
   }
 };
+
 
 const DeleteUser = async (req, res, next) => {
   try {
